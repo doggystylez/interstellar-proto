@@ -8,4 +8,6 @@ for dir in proto/*; do
 done
 cp -r github.com/doggystylez/interstellar-proto/* ./
 rm -rf github.com
+
+go get 	github.com/cosmos/cosmos-proto@v1.0.0-beta.2
 go mod tidy
