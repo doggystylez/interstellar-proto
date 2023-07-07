@@ -34,7 +34,7 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
-	github.com/linxGnu/grocksdb v1.7.16 // indirect
+	github.com/linxGnu/grocksdb v1.8.0 // indirect
 	github.com/petermattis/goid v0.0.0-20230518223814-80aa455d8761 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
