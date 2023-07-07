@@ -289,7 +289,7 @@ message Tip {
   //  repeated cosmos.base.v1beta1.Coin amount = 1 [
   repeated balance.Coin amount = 1 [
     (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/doggystylez/interstellar-proto/balance.Coins",
+    (gogoproto.castrepeated) = "github.com/doggystylez/interstellar-proto/query/balance.Coins",
     (amino.dont_omitempty) = true,
     (amino.encoding) = "legacy_coins"
   ];
