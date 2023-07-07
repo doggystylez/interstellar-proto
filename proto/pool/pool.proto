@@ -1,15 +1,19 @@
 syntax = "proto3";
 package osmosis.poolmanager.v1beta1;
 
-//import "cosmos/base/query/v1beta1/pagination.proto";
-//import "cosmos/query/v1/query.proto";
-//import "cosmos_proto/cosmos.proto";
+import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-//import "proto/balance/coin.proto";
+import "google/protobuf/any.proto";
 
 option go_package = "github.com/doggystylez/interstellar-proto/query/pool";
 
 service Query {
+  // Returns the total number of pools existing in Osmosis.
+  rpc NumPools(NumPoolsRequest) returns (NumPoolsResponse) {}
+
+  // AllPools returns all pools on the Osmosis chain sorted by IDs.
+  rpc AllPools(AllPoolsRequest) returns (AllPoolsResponse) {}
+
   // Estimates swap amount out given in.
   rpc EstimateSwapExactAmountIn(EstimateSwapExactAmountInRequest) returns (EstimateSwapExactAmountInResponse) {}
 
@@ -18,6 +22,16 @@ service Query {
   // SpotPrice defines a gRPC query handler that returns the spot price given
   // a base denomination and a quote denomination.
   rpc SpotPrice(SpotPriceRequest) returns (SpotPriceResponse) {}
+}
+
+message NumPoolsRequest {}
+message NumPoolsResponse {
+  uint64 num_pools = 1 [(gogoproto.moretags) = "yaml:\"num_pools\""];
+}
+
+message AllPoolsRequest {}
+message AllPoolsResponse {
+  repeated google.protobuf.Any pools = 1 [(cosmos_proto.accepts_interface) = "PoolI"];
 }
 
 message EstimateSwapExactAmountInRequest {

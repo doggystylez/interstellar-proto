@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.21.12
-// source: proto/pool/price.proto
+// source: proto/pool/pool.proto
 
 package pool
 
@@ -19,6 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	Query_NumPools_FullMethodName                            = "/osmosis.poolmanager.v1beta1.Query/NumPools"
+	Query_AllPools_FullMethodName                            = "/osmosis.poolmanager.v1beta1.Query/AllPools"
 	Query_EstimateSwapExactAmountIn_FullMethodName           = "/osmosis.poolmanager.v1beta1.Query/EstimateSwapExactAmountIn"
 	Query_EstimateSinglePoolSwapExactAmountIn_FullMethodName = "/osmosis.poolmanager.v1beta1.Query/EstimateSinglePoolSwapExactAmountIn"
 	Query_SpotPrice_FullMethodName                           = "/osmosis.poolmanager.v1beta1.Query/SpotPrice"
@@ -28,6 +30,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type QueryClient interface {
+	// Returns the total number of pools existing in Osmosis.
+	NumPools(ctx context.Context, in *NumPoolsRequest, opts ...grpc.CallOption) (*NumPoolsResponse, error)
+	// AllPools returns all pools on the Osmosis chain sorted by IDs.
+	AllPools(ctx context.Context, in *AllPoolsRequest, opts ...grpc.CallOption) (*AllPoolsResponse, error)
 	// Estimates swap amount out given in.
 	EstimateSwapExactAmountIn(ctx context.Context, in *EstimateSwapExactAmountInRequest, opts ...grpc.CallOption) (*EstimateSwapExactAmountInResponse, error)
 	EstimateSinglePoolSwapExactAmountIn(ctx context.Context, in *EstimateSinglePoolSwapExactAmountInRequest, opts ...grpc.CallOption) (*EstimateSwapExactAmountInResponse, error)
@@ -42,6 +48,24 @@ type queryClient struct {
 
 func NewQueryClient(cc grpc.ClientConnInterface) QueryClient {
 	return &queryClient{cc}
+}
+
+func (c *queryClient) NumPools(ctx context.Context, in *NumPoolsRequest, opts ...grpc.CallOption) (*NumPoolsResponse, error) {
+	out := new(NumPoolsResponse)
+	err := c.cc.Invoke(ctx, Query_NumPools_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) AllPools(ctx context.Context, in *AllPoolsRequest, opts ...grpc.CallOption) (*AllPoolsResponse, error) {
+	out := new(AllPoolsResponse)
+	err := c.cc.Invoke(ctx, Query_AllPools_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *queryClient) EstimateSwapExactAmountIn(ctx context.Context, in *EstimateSwapExactAmountInRequest, opts ...grpc.CallOption) (*EstimateSwapExactAmountInResponse, error) {
@@ -75,6 +99,10 @@ func (c *queryClient) SpotPrice(ctx context.Context, in *SpotPriceRequest, opts 
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
 type QueryServer interface {
+	// Returns the total number of pools existing in Osmosis.
+	NumPools(context.Context, *NumPoolsRequest) (*NumPoolsResponse, error)
+	// AllPools returns all pools on the Osmosis chain sorted by IDs.
+	AllPools(context.Context, *AllPoolsRequest) (*AllPoolsResponse, error)
 	// Estimates swap amount out given in.
 	EstimateSwapExactAmountIn(context.Context, *EstimateSwapExactAmountInRequest) (*EstimateSwapExactAmountInResponse, error)
 	EstimateSinglePoolSwapExactAmountIn(context.Context, *EstimateSinglePoolSwapExactAmountInRequest) (*EstimateSwapExactAmountInResponse, error)
@@ -88,6 +116,12 @@ type QueryServer interface {
 type UnimplementedQueryServer struct {
 }
 
+func (UnimplementedQueryServer) NumPools(context.Context, *NumPoolsRequest) (*NumPoolsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NumPools not implemented")
+}
+func (UnimplementedQueryServer) AllPools(context.Context, *AllPoolsRequest) (*AllPoolsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AllPools not implemented")
+}
 func (UnimplementedQueryServer) EstimateSwapExactAmountIn(context.Context, *EstimateSwapExactAmountInRequest) (*EstimateSwapExactAmountInResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EstimateSwapExactAmountIn not implemented")
 }
@@ -108,6 +142,42 @@ type UnsafeQueryServer interface {
 
 func RegisterQueryServer(s grpc.ServiceRegistrar, srv QueryServer) {
 	s.RegisterService(&Query_ServiceDesc, srv)
+}
+
+func _Query_NumPools_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NumPoolsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).NumPools(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_NumPools_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).NumPools(ctx, req.(*NumPoolsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_AllPools_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AllPoolsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).AllPools(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_AllPools_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).AllPools(ctx, req.(*AllPoolsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_EstimateSwapExactAmountIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -172,6 +242,14 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "NumPools",
+			Handler:    _Query_NumPools_Handler,
+		},
+		{
+			MethodName: "AllPools",
+			Handler:    _Query_AllPools_Handler,
+		},
+		{
 			MethodName: "EstimateSwapExactAmountIn",
 			Handler:    _Query_EstimateSwapExactAmountIn_Handler,
 		},
@@ -185,5 +263,5 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/pool/price.proto",
+	Metadata: "proto/pool/pool.proto",
 }
