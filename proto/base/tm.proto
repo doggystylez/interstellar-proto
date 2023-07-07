@@ -3,7 +3,7 @@ package cosmos.base.tendermint.v1beta1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/doggystylez/interstellar-proto/base";
+option go_package = "github.com/doggystylez/interstellar-proto/query/base";
 
 // Service defines the gRPC querier service for tendermint queries.
 service Service {

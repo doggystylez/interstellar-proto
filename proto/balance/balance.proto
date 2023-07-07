@@ -7,7 +7,7 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "proto/balance/coin.proto";
 
-option go_package = "github.com/doggystylez/interstellar-proto/balance";
+option go_package = "github.com/doggystylez/interstellar-proto/query/balance";
 
 // Query defines the gRPC querier service.
 service Query {

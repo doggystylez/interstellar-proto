@@ -5,7 +5,7 @@ import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/doggystylez/interstellar-proto/wasm";
+option go_package = "github.com/doggystylez/interstellar-proto/query/wasm";
 
 service Query {
   // AllContractState gets all raw store data for a single contract

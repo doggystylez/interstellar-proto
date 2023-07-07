@@ -5,7 +5,7 @@ import "amino/amino.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/doggystylez/interstellar-proto/balance";
+option go_package = "github.com/doggystylez/interstellar-proto/query/balance";
 option (gogoproto.goproto_stringer_all) = false;
 option (gogoproto.stringer_all) = false;
 

@@ -63,6 +63,98 @@ message GetTxResponse {
   TxResponse tx_response = 2;
 }
 
+// TxResponse defines a structure containing relevant tx data and metadata. The
+// tags are stringified and the log is JSON decoded.
+message TxResponse {
+  option (gogoproto.goproto_getters) = false;
+  // The block height
+  int64 height = 1;
+  // The transaction hash.
+  string tx_hash = 2; //[(gogoproto.customname) = "TxHash"];
+  // Namespace for the Code
+  string codespace = 3;
+  // Response code.
+  uint32 code = 4;
+  // Result bytes, if any.
+  string data = 5;
+  // The output of the application's logger (raw string). May be
+  // non-deterministic.
+  string raw_log = 6;
+  // The output of the application's logger (typed). May be non-deterministic.
+  repeated ABCIMessageLog logs = 7 [
+    (gogoproto.castrepeated) = "ABCIMessageLogs",
+    (gogoproto.nullable) = false
+  ];
+  // Additional information. May be non-deterministic.
+  string info = 8;
+  // Amount of gas requested for transaction.
+  int64 gas_wanted = 9;
+  // Amount of gas consumed by transaction.
+  int64 gas_used = 10;
+  // The request transaction bytes.
+  google.protobuf.Any tx = 11;
+  // Time of the previous block. For heights > 1, it's the weighted median of
+  // the timestamps of the valid votes in the block.LastCommit. For height == 1,
+  // it's genesis time.
+  string timestamp = 12;
+  // Events defines all the events emitted by processing a transaction. Note,
+  // these events include those emitted by processing all the messages and those
+  // emitted from the ante. Whereas Logs contains the events, with
+  // additional metadata, emitted only by processing the messages.
+  //
+  // Since: cosmos-sdk 0.42.11, 0.44.5, 0.45
+  Event events = 13 [(gogoproto.nullable) = false];
+}
+
+// ABCIMessageLog defines a structure containing an indexed tx ABCI message log.
+message ABCIMessageLog {
+  option (gogoproto.stringer) = true;
+
+  uint32 msg_index = 1 [(gogoproto.jsontag) = "msg_index"];
+  string log = 2;
+
+  // Events contains a slice of Event objects that were emitted during some
+  // execution.
+  repeated StringEvent events = 3 [
+    (gogoproto.castrepeated) = "StringEvents",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// StringEvent defines en Event object wrapper where all the attributes
+// contain key/value pairs that are strings instead of raw bytes.
+message StringEvent {
+  option (gogoproto.stringer) = true;
+
+  string type = 1;
+  repeated Attribute attributes = 2 [(gogoproto.nullable) = false];
+}
+
+// Attribute defines an attribute wrapper where the key and value are
+// strings instead of raw bytes.
+message Attribute {
+  string key = 1;
+  string value = 2;
+}
+
+// Event allows application developers to attach additional information to
+// ResponseFinalizeBlock and ResponseCheckTx.
+// Later, transactions may be queried using these events.
+message Event {
+  string type = 1;
+  repeated EventAttribute attributes = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "attributes,omitempty"
+  ];
+}
+
+// EventAttribute is a single key-value pair, associated with an event.
+message EventAttribute {
+  string key = 1;
+  string value = 2;
+  bool index = 3; // nondeterministic
+}
+
 // Tx is the standard type used for broadcasting transactions.
 message Tx {
   // body is the processable content of the transaction
@@ -261,7 +353,7 @@ message Fee {
   // repeated cosmos.base.v1beta1.Coin amount = 1 [
   repeated balance.Coin amount = 1 [
     (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/doggystylez/interstellar-proto/balance.Coins",
+    (gogoproto.castrepeated) = "github.com/doggystylez/interstellar-proto/query/balance.Coins",
     (amino.dont_omitempty) = true,
     (amino.encoding) = "legacy_coins"
   ];
@@ -289,7 +381,7 @@ message Tip {
   //  repeated cosmos.base.v1beta1.Coin amount = 1 [
   repeated balance.Coin amount = 1 [
     (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/doggystylez/interstellar-proto/balance.Coins",
+    (gogoproto.castrepeated) = "github.com/doggystylez/interstellar-proto/query/balance.Coins",
     (amino.dont_omitempty) = true,
     (amino.encoding) = "legacy_coins"
   ];
@@ -316,96 +408,4 @@ message AuxSignerData {
   cosmos.tx.signing.v1beta1.SignMode mode = 3;
   // sig is the signature of the sign doc.
   bytes sig = 4;
-}
-
-// TxResponse defines a structure containing relevant tx data and metadata. The
-// tags are stringified and the log is JSON decoded.
-message TxResponse {
-  option (gogoproto.goproto_getters) = false;
-  // The block height
-  int64 height = 1;
-  // The transaction hash.
-  string tx_hash = 2; //[(gogoproto.customname) = "TxHash"];
-  // Namespace for the Code
-  string codespace = 3;
-  // Response code.
-  uint32 code = 4;
-  // Result bytes, if any.
-  string data = 5;
-  // The output of the application's logger (raw string). May be
-  // non-deterministic.
-  string raw_log = 6;
-  // The output of the application's logger (typed). May be non-deterministic.
-  repeated ABCIMessageLog logs = 7 [
-    (gogoproto.castrepeated) = "ABCIMessageLogs",
-    (gogoproto.nullable) = false
-  ];
-  // Additional information. May be non-deterministic.
-  string info = 8;
-  // Amount of gas requested for transaction.
-  int64 gas_wanted = 9;
-  // Amount of gas consumed by transaction.
-  int64 gas_used = 10;
-  // The request transaction bytes.
-  google.protobuf.Any tx = 11;
-  // Time of the previous block. For heights > 1, it's the weighted median of
-  // the timestamps of the valid votes in the block.LastCommit. For height == 1,
-  // it's genesis time.
-  string timestamp = 12;
-  // Events defines all the events emitted by processing a transaction. Note,
-  // these events include those emitted by processing all the messages and those
-  // emitted from the ante. Whereas Logs contains the events, with
-  // additional metadata, emitted only by processing the messages.
-  //
-  // Since: cosmos-sdk 0.42.11, 0.44.5, 0.45
-  Event events = 13 [(gogoproto.nullable) = false];
-}
-
-// ABCIMessageLog defines a structure containing an indexed tx ABCI message log.
-message ABCIMessageLog {
-  option (gogoproto.stringer) = true;
-
-  uint32 msg_index = 1 [(gogoproto.jsontag) = "msg_index"];
-  string log = 2;
-
-  // Events contains a slice of Event objects that were emitted during some
-  // execution.
-  repeated StringEvent events = 3 [
-    (gogoproto.castrepeated) = "StringEvents",
-    (gogoproto.nullable) = false
-  ];
-}
-
-// StringEvent defines en Event object wrapper where all the attributes
-// contain key/value pairs that are strings instead of raw bytes.
-message StringEvent {
-  option (gogoproto.stringer) = true;
-
-  string type = 1;
-  repeated Attribute attributes = 2 [(gogoproto.nullable) = false];
-}
-
-// Attribute defines an attribute wrapper where the key and value are
-// strings instead of raw bytes.
-message Attribute {
-  string key = 1;
-  string value = 2;
-}
-
-// Event allows application developers to attach additional information to
-// ResponseFinalizeBlock and ResponseCheckTx.
-// Later, transactions may be queried using these events.
-message Event {
-  string type = 1;
-  repeated EventAttribute attributes = 2 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag) = "attributes,omitempty"
-  ];
-}
-
-// EventAttribute is a single key-value pair, associated with an event.
-message EventAttribute {
-  string key = 1;
-  string value = 2;
-  bool index = 3; // nondeterministic
 }
