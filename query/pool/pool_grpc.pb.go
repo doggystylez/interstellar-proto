@@ -19,27 +19,27 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Pools_FullMethodName                     = "/osmosis.gamm.v1beta1.Query/Pools"
-	Query_NumPools_FullMethodName                  = "/osmosis.gamm.v1beta1.Query/NumPools"
-	Query_SpotPrice_FullMethodName                 = "/osmosis.gamm.v1beta1.Query/SpotPrice"
-	Query_EstimateSwapExactAmountIn_FullMethodName = "/osmosis.gamm.v1beta1.Query/EstimateSwapExactAmountIn"
+	Query_NumPools_FullMethodName                            = "/osmosis.poolmanager.v1beta1.Query/NumPools"
+	Query_AllPools_FullMethodName                            = "/osmosis.poolmanager.v1beta1.Query/AllPools"
+	Query_EstimateSwapExactAmountIn_FullMethodName           = "/osmosis.poolmanager.v1beta1.Query/EstimateSwapExactAmountIn"
+	Query_EstimateSinglePoolSwapExactAmountIn_FullMethodName = "/osmosis.poolmanager.v1beta1.Query/EstimateSinglePoolSwapExactAmountIn"
+	Query_SpotPrice_FullMethodName                           = "/osmosis.poolmanager.v1beta1.Query/SpotPrice"
 )
 
 // QueryClient is the client API for Query service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type QueryClient interface {
-	Pools(ctx context.Context, in *QueryPoolsRequest, opts ...grpc.CallOption) (*QueryPoolsResponse, error)
-	// Deprecated: Do not use.
-	// Deprecated: please use the alternative in x/poolmanager
-	NumPools(ctx context.Context, in *QueryNumPoolsRequest, opts ...grpc.CallOption) (*QueryNumPoolsResponse, error)
-	// Deprecated: Do not use.
+	// Returns the total number of pools existing in Osmosis.
+	NumPools(ctx context.Context, in *NumPoolsRequest, opts ...grpc.CallOption) (*NumPoolsResponse, error)
+	// AllPools returns all pools on the Osmosis chain sorted by IDs.
+	AllPools(ctx context.Context, in *AllPoolsRequest, opts ...grpc.CallOption) (*AllPoolsResponse, error)
+	// Estimates swap amount out given in.
+	EstimateSwapExactAmountIn(ctx context.Context, in *EstimateSwapExactAmountInRequest, opts ...grpc.CallOption) (*EstimateSwapExactAmountInResponse, error)
+	EstimateSinglePoolSwapExactAmountIn(ctx context.Context, in *EstimateSinglePoolSwapExactAmountInRequest, opts ...grpc.CallOption) (*EstimateSwapExactAmountInResponse, error)
 	// SpotPrice defines a gRPC query handler that returns the spot price given
 	// a base denomination and a quote denomination.
-	SpotPrice(ctx context.Context, in *QuerySpotPriceRequest, opts ...grpc.CallOption) (*QuerySpotPriceResponse, error)
-	// Deprecated: Do not use.
-	// Deprecated: please use the alternative in x/poolmanager
-	EstimateSwapExactAmountIn(ctx context.Context, in *QuerySwapExactAmountInRequest, opts ...grpc.CallOption) (*QuerySwapExactAmountInResponse, error)
+	SpotPrice(ctx context.Context, in *SpotPriceRequest, opts ...grpc.CallOption) (*SpotPriceResponse, error)
 }
 
 type queryClient struct {
@@ -50,18 +50,8 @@ func NewQueryClient(cc grpc.ClientConnInterface) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) Pools(ctx context.Context, in *QueryPoolsRequest, opts ...grpc.CallOption) (*QueryPoolsResponse, error) {
-	out := new(QueryPoolsResponse)
-	err := c.cc.Invoke(ctx, Query_Pools_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Deprecated: Do not use.
-func (c *queryClient) NumPools(ctx context.Context, in *QueryNumPoolsRequest, opts ...grpc.CallOption) (*QueryNumPoolsResponse, error) {
-	out := new(QueryNumPoolsResponse)
+func (c *queryClient) NumPools(ctx context.Context, in *NumPoolsRequest, opts ...grpc.CallOption) (*NumPoolsResponse, error) {
+	out := new(NumPoolsResponse)
 	err := c.cc.Invoke(ctx, Query_NumPools_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -69,20 +59,36 @@ func (c *queryClient) NumPools(ctx context.Context, in *QueryNumPoolsRequest, op
 	return out, nil
 }
 
-// Deprecated: Do not use.
-func (c *queryClient) SpotPrice(ctx context.Context, in *QuerySpotPriceRequest, opts ...grpc.CallOption) (*QuerySpotPriceResponse, error) {
-	out := new(QuerySpotPriceResponse)
-	err := c.cc.Invoke(ctx, Query_SpotPrice_FullMethodName, in, out, opts...)
+func (c *queryClient) AllPools(ctx context.Context, in *AllPoolsRequest, opts ...grpc.CallOption) (*AllPoolsResponse, error) {
+	out := new(AllPoolsResponse)
+	err := c.cc.Invoke(ctx, Query_AllPools_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Deprecated: Do not use.
-func (c *queryClient) EstimateSwapExactAmountIn(ctx context.Context, in *QuerySwapExactAmountInRequest, opts ...grpc.CallOption) (*QuerySwapExactAmountInResponse, error) {
-	out := new(QuerySwapExactAmountInResponse)
+func (c *queryClient) EstimateSwapExactAmountIn(ctx context.Context, in *EstimateSwapExactAmountInRequest, opts ...grpc.CallOption) (*EstimateSwapExactAmountInResponse, error) {
+	out := new(EstimateSwapExactAmountInResponse)
 	err := c.cc.Invoke(ctx, Query_EstimateSwapExactAmountIn_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) EstimateSinglePoolSwapExactAmountIn(ctx context.Context, in *EstimateSinglePoolSwapExactAmountInRequest, opts ...grpc.CallOption) (*EstimateSwapExactAmountInResponse, error) {
+	out := new(EstimateSwapExactAmountInResponse)
+	err := c.cc.Invoke(ctx, Query_EstimateSinglePoolSwapExactAmountIn_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) SpotPrice(ctx context.Context, in *SpotPriceRequest, opts ...grpc.CallOption) (*SpotPriceResponse, error) {
+	out := new(SpotPriceResponse)
+	err := c.cc.Invoke(ctx, Query_SpotPrice_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,17 +99,16 @@ func (c *queryClient) EstimateSwapExactAmountIn(ctx context.Context, in *QuerySw
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
 type QueryServer interface {
-	Pools(context.Context, *QueryPoolsRequest) (*QueryPoolsResponse, error)
-	// Deprecated: Do not use.
-	// Deprecated: please use the alternative in x/poolmanager
-	NumPools(context.Context, *QueryNumPoolsRequest) (*QueryNumPoolsResponse, error)
-	// Deprecated: Do not use.
+	// Returns the total number of pools existing in Osmosis.
+	NumPools(context.Context, *NumPoolsRequest) (*NumPoolsResponse, error)
+	// AllPools returns all pools on the Osmosis chain sorted by IDs.
+	AllPools(context.Context, *AllPoolsRequest) (*AllPoolsResponse, error)
+	// Estimates swap amount out given in.
+	EstimateSwapExactAmountIn(context.Context, *EstimateSwapExactAmountInRequest) (*EstimateSwapExactAmountInResponse, error)
+	EstimateSinglePoolSwapExactAmountIn(context.Context, *EstimateSinglePoolSwapExactAmountInRequest) (*EstimateSwapExactAmountInResponse, error)
 	// SpotPrice defines a gRPC query handler that returns the spot price given
 	// a base denomination and a quote denomination.
-	SpotPrice(context.Context, *QuerySpotPriceRequest) (*QuerySpotPriceResponse, error)
-	// Deprecated: Do not use.
-	// Deprecated: please use the alternative in x/poolmanager
-	EstimateSwapExactAmountIn(context.Context, *QuerySwapExactAmountInRequest) (*QuerySwapExactAmountInResponse, error)
+	SpotPrice(context.Context, *SpotPriceRequest) (*SpotPriceResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -111,17 +116,20 @@ type QueryServer interface {
 type UnimplementedQueryServer struct {
 }
 
-func (UnimplementedQueryServer) Pools(context.Context, *QueryPoolsRequest) (*QueryPoolsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Pools not implemented")
-}
-func (UnimplementedQueryServer) NumPools(context.Context, *QueryNumPoolsRequest) (*QueryNumPoolsResponse, error) {
+func (UnimplementedQueryServer) NumPools(context.Context, *NumPoolsRequest) (*NumPoolsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NumPools not implemented")
 }
-func (UnimplementedQueryServer) SpotPrice(context.Context, *QuerySpotPriceRequest) (*QuerySpotPriceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SpotPrice not implemented")
+func (UnimplementedQueryServer) AllPools(context.Context, *AllPoolsRequest) (*AllPoolsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AllPools not implemented")
 }
-func (UnimplementedQueryServer) EstimateSwapExactAmountIn(context.Context, *QuerySwapExactAmountInRequest) (*QuerySwapExactAmountInResponse, error) {
+func (UnimplementedQueryServer) EstimateSwapExactAmountIn(context.Context, *EstimateSwapExactAmountInRequest) (*EstimateSwapExactAmountInResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EstimateSwapExactAmountIn not implemented")
+}
+func (UnimplementedQueryServer) EstimateSinglePoolSwapExactAmountIn(context.Context, *EstimateSinglePoolSwapExactAmountInRequest) (*EstimateSwapExactAmountInResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EstimateSinglePoolSwapExactAmountIn not implemented")
+}
+func (UnimplementedQueryServer) SpotPrice(context.Context, *SpotPriceRequest) (*SpotPriceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SpotPrice not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
@@ -136,26 +144,8 @@ func RegisterQueryServer(s grpc.ServiceRegistrar, srv QueryServer) {
 	s.RegisterService(&Query_ServiceDesc, srv)
 }
 
-func _Query_Pools_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryPoolsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).Pools(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_Pools_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Pools(ctx, req.(*QueryPoolsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Query_NumPools_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryNumPoolsRequest)
+	in := new(NumPoolsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -167,31 +157,31 @@ func _Query_NumPools_Handler(srv interface{}, ctx context.Context, dec func(inte
 		FullMethod: Query_NumPools_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).NumPools(ctx, req.(*QueryNumPoolsRequest))
+		return srv.(QueryServer).NumPools(ctx, req.(*NumPoolsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_SpotPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QuerySpotPriceRequest)
+func _Query_AllPools_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AllPoolsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).SpotPrice(ctx, in)
+		return srv.(QueryServer).AllPools(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Query_SpotPrice_FullMethodName,
+		FullMethod: Query_AllPools_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).SpotPrice(ctx, req.(*QuerySpotPriceRequest))
+		return srv.(QueryServer).AllPools(ctx, req.(*AllPoolsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_EstimateSwapExactAmountIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QuerySwapExactAmountInRequest)
+	in := new(EstimateSwapExactAmountInRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -203,7 +193,43 @@ func _Query_EstimateSwapExactAmountIn_Handler(srv interface{}, ctx context.Conte
 		FullMethod: Query_EstimateSwapExactAmountIn_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).EstimateSwapExactAmountIn(ctx, req.(*QuerySwapExactAmountInRequest))
+		return srv.(QueryServer).EstimateSwapExactAmountIn(ctx, req.(*EstimateSwapExactAmountInRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_EstimateSinglePoolSwapExactAmountIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EstimateSinglePoolSwapExactAmountInRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).EstimateSinglePoolSwapExactAmountIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_EstimateSinglePoolSwapExactAmountIn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).EstimateSinglePoolSwapExactAmountIn(ctx, req.(*EstimateSinglePoolSwapExactAmountInRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_SpotPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SpotPriceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).SpotPrice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_SpotPrice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).SpotPrice(ctx, req.(*SpotPriceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -212,24 +238,28 @@ func _Query_EstimateSwapExactAmountIn_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "osmosis.gamm.v1beta1.Query",
+	ServiceName: "osmosis.poolmanager.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Pools",
-			Handler:    _Query_Pools_Handler,
-		},
 		{
 			MethodName: "NumPools",
 			Handler:    _Query_NumPools_Handler,
 		},
 		{
-			MethodName: "SpotPrice",
-			Handler:    _Query_SpotPrice_Handler,
+			MethodName: "AllPools",
+			Handler:    _Query_AllPools_Handler,
 		},
 		{
 			MethodName: "EstimateSwapExactAmountIn",
 			Handler:    _Query_EstimateSwapExactAmountIn_Handler,
+		},
+		{
+			MethodName: "EstimateSinglePoolSwapExactAmountIn",
+			Handler:    _Query_EstimateSinglePoolSwapExactAmountIn_Handler,
+		},
+		{
+			MethodName: "SpotPrice",
+			Handler:    _Query_SpotPrice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,7 +1,6 @@
 syntax = "proto3";
-package osmosis.gamm.v1beta1;
+package osmosis.poolmanager.v1beta1;
 
-import "cosmos/base/query/v1beta1/pagination.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
@@ -9,64 +8,35 @@ import "google/protobuf/any.proto";
 option go_package = "github.com/doggystylez/interstellar-proto/query/pool";
 
 service Query {
-  rpc Pools(QueryPoolsRequest) returns (QueryPoolsResponse) {}
+  // Returns the total number of pools existing in Osmosis.
+  rpc NumPools(NumPoolsRequest) returns (NumPoolsResponse) {}
 
-  // Deprecated: please use the alternative in x/poolmanager
-  rpc NumPools(QueryNumPoolsRequest) returns (QueryNumPoolsResponse) {
-    option deprecated = true;
-  }
+  // AllPools returns all pools on the Osmosis chain sorted by IDs.
+  rpc AllPools(AllPoolsRequest) returns (AllPoolsResponse) {}
+
+  // Estimates swap amount out given in.
+  rpc EstimateSwapExactAmountIn(EstimateSwapExactAmountInRequest) returns (EstimateSwapExactAmountInResponse) {}
+
+  rpc EstimateSinglePoolSwapExactAmountIn(EstimateSinglePoolSwapExactAmountInRequest) returns (EstimateSwapExactAmountInResponse) {}
 
   // SpotPrice defines a gRPC query handler that returns the spot price given
   // a base denomination and a quote denomination.
-  rpc SpotPrice(QuerySpotPriceRequest) returns (QuerySpotPriceResponse) {
-    option deprecated = true;
-  }
-
-  // Deprecated: please use the alternative in x/poolmanager
-  rpc EstimateSwapExactAmountIn(QuerySwapExactAmountInRequest) returns (QuerySwapExactAmountInResponse) {
-    option deprecated = true;
-  }
+  rpc SpotPrice(SpotPriceRequest) returns (SpotPriceResponse) {}
 }
 
-//=============================== Pools
-message QueryPoolsRequest {
-  // pagination defines an optional pagination for the request.
-  cosmos.base.query.v1beta1.PageRequest pagination = 2;
-}
-message QueryPoolsResponse {
-  repeated google.protobuf.Any pools = 1 [(cosmos_proto.accepts_interface) = "PoolI"];
-
-  // pagination defines the pagination in the response.
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-//=============================== NumPools
-message QueryNumPoolsRequest {
-  option deprecated = true;
-}
-message QueryNumPoolsResponse {
-  option deprecated = true;
+message NumPoolsRequest {}
+message NumPoolsResponse {
   uint64 num_pools = 1 [(gogoproto.moretags) = "yaml:\"num_pools\""];
 }
 
-message QuerySpotPriceRequest {
-  option deprecated = true;
-  uint64 pool_id = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
-  string base_asset_denom = 2 [(gogoproto.moretags) = "yaml:\"base_asset_denom\""];
-  string quote_asset_denom = 3 [(gogoproto.moretags) = "yaml:\"quote_asset_denom\""];
-  reserved 4;
-  reserved "withSwapFee";
+message AllPoolsRequest {}
+message AllPoolsResponse {
+  repeated google.protobuf.Any pools = 1 [(cosmos_proto.accepts_interface) = "PoolI"];
 }
 
-message QuerySpotPriceResponse {
-  option deprecated = true;
-  // String of the Dec. Ex) 10.203uatom
-  string spot_price = 1 [(gogoproto.moretags) = "yaml:\"spot_price\""];
-}
-
-message QuerySwapExactAmountInRequest {
-  option deprecated = true;
-  string sender = 1 [(gogoproto.moretags) = "yaml:\"sender\""];
+message EstimateSwapExactAmountInRequest {
+  reserved 1;
+  reserved "sender";
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\""];
   string token_in = 3 [(gogoproto.moretags) = "yaml:\"token_in\""];
   repeated SwapAmountInRoute routes = 4 [
@@ -75,13 +45,33 @@ message QuerySwapExactAmountInRequest {
   ];
 }
 
-message QuerySwapExactAmountInResponse {
-  option deprecated = true;
+message EstimateSinglePoolSwapExactAmountInRequest {
+  uint64 pool_id = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
+  string token_in = 2 [(gogoproto.moretags) = "yaml:\"token_in\""];
+  string token_out_denom = 3 [(gogoproto.moretags) = "yaml:\"token_out_denom\""];
+}
+
+message EstimateSwapExactAmountInResponse {
   string token_out_amount = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.moretags) = "yaml:\"token_out_amount\"",
     (gogoproto.nullable) = false
   ];
+}
+
+// SpotPriceRequest defines the gRPC request structure for a SpotPrice
+// query.
+message SpotPriceRequest {
+  uint64 pool_id = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
+  string base_asset_denom = 2 [(gogoproto.moretags) = "yaml:\"base_asset_denom\""];
+  string quote_asset_denom = 3 [(gogoproto.moretags) = "yaml:\"quote_asset_denom\""];
+}
+
+// SpotPriceResponse defines the gRPC response structure for a SpotPrice
+// query.
+message SpotPriceResponse {
+  // String of the Dec. Ex) 10.203uatom
+  string spot_price = 1 [(gogoproto.moretags) = "yaml:\"spot_price\""];
 }
 
 message SwapAmountInRoute {

@@ -185,7 +185,7 @@ message StableswapPool {
     (gogoproto.nullable) = false
   ];
   // assets in the pool
-  balance.Coin pool_liquidity = 6 [
+  repeated balance.Coin pool_liquidity = 6 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/doggystylez/interstellar-proto/balance.Coins"
   ];
