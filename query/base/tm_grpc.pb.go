@@ -19,7 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Service_GetNodeInfo_FullMethodName = "/cosmos.base.tendermint.v1beta1.Service/GetNodeInfo"
+	Service_GetNodeInfo_FullMethodName      = "/cosmos.base.tendermint.v1beta1.Service/GetNodeInfo"
+	Service_GetLatestBlock_FullMethodName   = "/cosmos.base.tendermint.v1beta1.Service/GetLatestBlock"
+	Service_GetBlockByHeight_FullMethodName = "/cosmos.base.tendermint.v1beta1.Service/GetBlockByHeight"
 )
 
 // ServiceClient is the client API for Service service.
@@ -28,6 +30,10 @@ const (
 type ServiceClient interface {
 	// GetNodeInfo queries the current node info.
 	GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest, opts ...grpc.CallOption) (*GetNodeInfoResponse, error)
+	// GetLatestBlock returns the latest block.
+	GetLatestBlock(ctx context.Context, in *GetLatestBlockRequest, opts ...grpc.CallOption) (*GetLatestBlockResponse, error)
+	// GetBlockByHeight queries block for given height.
+	GetBlockByHeight(ctx context.Context, in *GetBlockByHeightRequest, opts ...grpc.CallOption) (*GetBlockByHeightResponse, error)
 }
 
 type serviceClient struct {
@@ -47,12 +53,34 @@ func (c *serviceClient) GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest,
 	return out, nil
 }
 
+func (c *serviceClient) GetLatestBlock(ctx context.Context, in *GetLatestBlockRequest, opts ...grpc.CallOption) (*GetLatestBlockResponse, error) {
+	out := new(GetLatestBlockResponse)
+	err := c.cc.Invoke(ctx, Service_GetLatestBlock_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GetBlockByHeight(ctx context.Context, in *GetBlockByHeightRequest, opts ...grpc.CallOption) (*GetBlockByHeightResponse, error) {
+	out := new(GetBlockByHeightResponse)
+	err := c.cc.Invoke(ctx, Service_GetBlockByHeight_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceServer is the server API for Service service.
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility
 type ServiceServer interface {
 	// GetNodeInfo queries the current node info.
 	GetNodeInfo(context.Context, *GetNodeInfoRequest) (*GetNodeInfoResponse, error)
+	// GetLatestBlock returns the latest block.
+	GetLatestBlock(context.Context, *GetLatestBlockRequest) (*GetLatestBlockResponse, error)
+	// GetBlockByHeight queries block for given height.
+	GetBlockByHeight(context.Context, *GetBlockByHeightRequest) (*GetBlockByHeightResponse, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -62,6 +90,12 @@ type UnimplementedServiceServer struct {
 
 func (UnimplementedServiceServer) GetNodeInfo(context.Context, *GetNodeInfoRequest) (*GetNodeInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNodeInfo not implemented")
+}
+func (UnimplementedServiceServer) GetLatestBlock(context.Context, *GetLatestBlockRequest) (*GetLatestBlockResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLatestBlock not implemented")
+}
+func (UnimplementedServiceServer) GetBlockByHeight(context.Context, *GetBlockByHeightRequest) (*GetBlockByHeightResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBlockByHeight not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 
@@ -94,6 +128,42 @@ func _Service_GetNodeInfo_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_GetLatestBlock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLatestBlockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetLatestBlock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetLatestBlock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetLatestBlock(ctx, req.(*GetLatestBlockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GetBlockByHeight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBlockByHeightRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetBlockByHeight(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetBlockByHeight_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetBlockByHeight(ctx, req.(*GetBlockByHeightRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Service_ServiceDesc is the grpc.ServiceDesc for Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +174,14 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNodeInfo",
 			Handler:    _Service_GetNodeInfo_Handler,
+		},
+		{
+			MethodName: "GetLatestBlock",
+			Handler:    _Service_GetLatestBlock_Handler,
+		},
+		{
+			MethodName: "GetBlockByHeight",
+			Handler:    _Service_GetBlockByHeight_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
